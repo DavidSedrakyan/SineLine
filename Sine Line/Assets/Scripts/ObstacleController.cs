@@ -4,15 +4,33 @@ using UnityEngine;
 
 public class ObstacleController : MonoBehaviour {
 
-	// Use this for initialization
-	void Start () {
-		
+
+    [SerializeField]
+    private SpriteRenderer torusRenderer;
+    [SerializeField]
+    private Sprite simpleTorus;
+    [SerializeField]
+    private Sprite feverTorus;
+
+
+    void Start () {
+        feverMode = false;
 	}
-	
-	// Update is called once per frame
+
+    private bool feverMode;
 	void Update () {
-		
+        if (ScoreManager.feverMode != feverMode && !ScoreManager.feverMode)
+        {
+            torusRenderer.sprite = simpleTorus;
+        }
+        else if (ScoreManager.feverMode != feverMode && ScoreManager.feverMode)
+        {
+            torusRenderer.sprite = feverTorus;
+        }
+        feverMode = ScoreManager.feverMode;
 	}
+    
+
     void OnBecameInvisible()
     {
         Destroy(gameObject);

@@ -9,6 +9,7 @@ TagManager:
   - freespacecollider
   - targetcollider
   - targetbodycollider
+  - perfectcollider
   layers:
   - Default
   - TransparentFX

@@ -15,9 +15,11 @@ public class PlayerController : MonoBehaviour {
     private float XAmplitude;
     [SerializeField]
     private float YSpeed;
+    [SerializeField]
+    private float YminSpeed;
 
     [SerializeField]
-    private Camera cam;
+    private GameObject camWrapper;
     [SerializeField]
     private float CamDistance;
     [SerializeField]
@@ -28,6 +30,12 @@ public class PlayerController : MonoBehaviour {
     private Rigidbody2D playerRigid;
 
 
+    [SerializeField]
+    private GameObject simpleEffects;
+    [SerializeField]
+    private GameObject feverEffects;
+
+
     // Use this for initialization
     void Start () {
         ButtonPressed = false;
@@ -35,35 +43,54 @@ public class PlayerController : MonoBehaviour {
 
     // Update is called once per frame
     private float newYSpeed = 0;
+    private bool feverMode;
 
+    private Vector3 lastPos; 
     void Update () {
         if(GameManager.GameStarted) {
+            
             SineAngle += Time.deltaTime * XSpeed;
             float newY;
             if (ButtonPressed)
             {
+                //increase
                 newYSpeed = newYSpeed + YSpeedDelta * Time.deltaTime;
                 if (newYSpeed > YSpeed) {
                     newYSpeed = YSpeed;
                 }
-
-                newY = transform.position.y + newYSpeed * Time.deltaTime;
             }
             else {
 
+                //decrease
                 newYSpeed = newYSpeed - YSpeedStopDelta * Time.deltaTime;
-                if (newYSpeed < 0)
+                if (newYSpeed <= YminSpeed)
                 {
-                    newYSpeed = 0;
+                    newYSpeed = YminSpeed;
                 }
-
-                newY = transform.position.y + newYSpeed * Time.deltaTime;
             }
 
+            newY = transform.position.y + newYSpeed * Time.deltaTime;
+        
+
             transform.position = new Vector3(Mathf.Sin(SineAngle) * XAmplitude, newY, transform.position.z);
-            cam.transform.position = new Vector3(cam.transform.position.x, newY + CamDistance, cam.transform.position.z);
+            camWrapper.transform.position = new Vector3(camWrapper.transform.position.x, newY + CamDistance, camWrapper.transform.position.z);
+
+           
+
+            if (ScoreManager.feverMode != feverMode && !ScoreManager.feverMode)
+            {
+                simpleEffects.SetActive(true);
+                feverEffects.SetActive(false);
+            }
+            else if (ScoreManager.feverMode != feverMode && ScoreManager.feverMode)
+            {
+                simpleEffects.SetActive(false);
+                feverEffects.SetActive(true);
+            }
+            feverMode = ScoreManager.feverMode;
 
 
+            lastPos = transform.position;
         }
     }
     private bool ButtonPressed;
@@ -84,9 +111,14 @@ public class PlayerController : MonoBehaviour {
             gameManager.GameOver();               
         }
 
-        if(collision.tag == "targetcollider")
+        if (collision.tag == "targetcollider")
         {
-            scoreManager.addScore(5);
+            scoreManager.AddScore(2, gameObject);
+        }
+
+        if (collision.tag == "perfectcollider")
+        {
+            scoreManager.AddScore(1,gameObject);
         }
     }
 }
